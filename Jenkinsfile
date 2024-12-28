@@ -18,7 +18,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Setting up the environment and installing dependencies...'
-                sh '''
+                sh '''#!/bin/bash
                 if [ -f requirements.txt ]; then
                     pip3 install -r requirements.txt
                 else
@@ -34,7 +34,7 @@ pipeline {
             }
             steps {
                 echo 'Running SonarQube analysis...'
-                sh '''
+                sh '''#!/bin/bash
                 if ! command -v sonar-scanner &> /dev/null
                 then
                     echo "SonarQube scanner not found. Please install it."
