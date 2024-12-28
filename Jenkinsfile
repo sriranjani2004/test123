@@ -41,13 +41,14 @@ pipeline {
                     echo "SonarQube scanner not found. Please install it."
                     exit 1
                 fi
+
+                # Run the SonarQube scanner with the token
                 sonar-scanner \
-  -Dsonar.projectKey=std \
-  -Dsonar.sources=. \
-  -Dsonar.host.url=http://localhost:9000 \
-  -Dsonar.token=sqp_d429bc73525b817c946d0df485a85faa2bc45bd5
+                    -Dsonar.projectKey=std \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.token=$SONAR_TOKEN
                 '''
-     
             }
         }
     }
