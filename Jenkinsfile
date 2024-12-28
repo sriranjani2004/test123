@@ -16,8 +16,8 @@ pipeline {
         stage('Build') {
             steps {
                 // Set the PATH and install dependencies using pip
-                bat '''
-                set PATH=%PYTHON_PATH%;%PATH%
+                sh '''
+                export PATH=$PYTHON_PATH:$PATH
                 pip install -r requirements.txt
                 '''
             }
@@ -29,14 +29,14 @@ pipeline {
             }
             steps {
                 // Ensure that sonar-scanner is in the PATH
-                bat '''
-                set PATH=%SONAR_SCANNER_PATH%;%PATH%
-                where sonar-scanner || echo "SonarQube scanner not found. Please install it."
-                set PATH=%PYTHON_PATH%;%PATH%
-                sonar-scanner -Dsonar.projectKey=test123 ^
-                    -Dsonar.sources=. ^
-                    -Dsonar.host.url=http://localhost:9000 ^
-                    -Dsonar.token=sqp_aec7a233104e9ac10eef9749031a78696dc34096
+                sh '''
+                export PATH=$SONAR_SCANNER_PATH:$PATH
+                command -v sonar-scanner || echo "SonarQube scanner not found. Please install it."
+                export PATH=$PYTHON_PATH:$PATH
+                sonar-scanner -Dsonar.projectKey=test123 \
+                              -Dsonar.sources=. \
+                              -Dsonar.host.url=http://localhost:9000 \
+                              -Dsonar.token=${SONAR_TOKEN}
                 '''
             }
         }
