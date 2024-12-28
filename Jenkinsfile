@@ -1,49 +1,64 @@
 pipeline {
     agent any
 
+    environment {
+        PYTHON_PATH = '/usr/local/bin/python'  // Path to Python on your macOS system
+        SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin' // Path to SonarQube scanner
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                // Checkout code from SCM
+                echo 'Checking out the source code...'
                 checkout scm
             }
         }
+
         stage('Build') {
             steps {
-                // Setup Python environment and install dependencies
+                echo 'Setting up the environment and installing dependencies...'
                 sh '''
-                # Ensure Python and Pip are accessible
-                export PATH=/usr/local/bin:$PATH
-                echo "Checking Python installation..."
-                which python || echo "Python is not installed"
-                which pip || echo "Pip is not installed"
-
-                # Ensure Pip is available
-                python3 -m ensurepip --upgrade || echo "Ensurepip failed"
-
-                # Install dependencies
-                python3 -m pip install --upgrade pip
-                python3 -m pip install -r requirements.txt
+                export PATH=$PYTHON_PATH:$PATH
+                if [ -f requirements.txt ]; then
+                    pip3 install -r requirements.txt
+                else
+                    echo "requirements.txt not found. Skipping dependency installation."
+                fi
                 '''
             }
         }
+
         stage('SonarQube Analysis') {
+            environment {
+                SONAR_TOKEN = credentials('Sonarqube-token') // Accessing the SonarQube token stored in Jenkins credentials
+            }
             steps {
-                // Placeholder for SonarQube analysis steps
-                echo 'Performing SonarQube analysis...'
+                echo 'Running SonarQube analysis...'
+                sh '''
+                export PATH=$SONAR_SCANNER_PATH:$PATH
+                if ! command -v sonar-scanner &> /dev/null
+                then
+                    echo "SonarQube scanner not found. Please install it."
+                    exit 1
+                fi
+                sonar-scanner -Dsonar.projectKey=test123 \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.token=$SONAR_TOKEN
+                '''
             }
         }
     }
 
     post {
-        always {
-            echo 'This runs regardless of the result.'
+        success {
+            echo 'Pipeline completed successfully.'
         }
         failure {
-            echo 'Pipeline failed'
+            echo 'Pipeline failed. Please check the logs.'
         }
-        success {
-            echo 'Pipeline succeeded'
+        always {
+            echo 'This runs regardless of the result.'
         }
     }
 }
