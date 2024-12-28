@@ -4,6 +4,7 @@ pipeline {
     environment {
         PYTHON_PATH = '/usr/local/bin/python'  // Path to Python on your macOS system
         SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin' // Path to SonarQube scanner
+        PATH = "${PYTHON_PATH}:${SONAR_SCANNER_PATH}:${PATH}" // Add both to PATH globally
     }
 
     stages {
@@ -18,7 +19,6 @@ pipeline {
             steps {
                 echo 'Setting up the environment and installing dependencies...'
                 sh '''
-                export PATH=$PYTHON_PATH:$PATH
                 if [ -f requirements.txt ]; then
                     pip3 install -r requirements.txt
                 else
@@ -35,7 +35,6 @@ pipeline {
             steps {
                 echo 'Running SonarQube analysis...'
                 sh '''
-                export PATH=$SONAR_SCANNER_PATH:$PATH
                 if ! command -v sonar-scanner &> /dev/null
                 then
                     echo "SonarQube scanner not found. Please install it."
