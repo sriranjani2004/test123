@@ -14,15 +14,13 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                // Set the PATH and install dependencies using pip
-                sh '''
-                export PATH=$PYTHON_PATH:$PATH
-                pip install -r requirements.txt
-                '''
-            }
-        }
+      steps {
+    sh '''
+    set PATH=%PYTHON_PATH%;%PATH%
+    pip install -r requirements.txt
+    '''
+}
+
 
         stage('SonarQube Analysis') {
             environment {
