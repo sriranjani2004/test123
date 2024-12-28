@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // Corrected the Python paths separator from semicolon to colon
-        PYTHON_PATH = '/usr/local/bin/python:/Library/Frameworks/Python.framework/Versions/3.12/bin/python3'  // Path to Python on your macOS system
-        SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin' // Path to SonarQube scanner
-        PATH = "${PYTHON_PATH}:${SONAR_SCANNER_PATH}:${PATH}" // Add both to PATH globally
+        PYTHON_PATH = '/usr/local/bin/python:/Library/Frameworks/Python.framework/Versions/3.12/bin/python3'
+        SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin'
+        PATH = "${PYTHON_PATH}:${SONAR_SCANNER_PATH}:${PATH}"
     }
 
     stages {
@@ -31,7 +30,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             environment {
-                SONAR_TOKEN = credentials('sonar-token') // Accessing the SonarQube token stored in Jenkins credentials
+                SONAR_TOKEN = credentials('sonar-token')
             }
             steps {
                 echo 'Running SonarQube analysis...'
@@ -42,7 +41,6 @@ pipeline {
                     exit 1
                 fi
 
-                # Run the SonarQube scanner with the token
                 sonar-scanner \
                     -Dsonar.projectKey=std \
                     -Dsonar.sources=. \
