@@ -2,8 +2,9 @@ pipeline {
     agent any
  
     environment {
-        PYTHON_PATH = 'C:/Users/ADMIN/AppData/Local/Programs/Python/Python313;C:/Users/ADMIN/AppData/Local/Programs/Python/Python313/Scripts'
-        SONAR_SCANNER_PATH = 'C:/Users/ADMIN/Downloads/sonar-scanner-cli-6.2.1.4610-windows-x64/sonar-scanner-6.2.1.4610-windows-x64/bin'
+         PYTHON_PATH = '/usr/local/bin/python:/Library/Frameworks/Python.framework/Versions/3.12/bin/python3'
+        SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin'
+        PATH = "${PYTHON_PATH}:${SONAR_SCANNER_PATH}:${PATH}"
     }
  
     stages {
