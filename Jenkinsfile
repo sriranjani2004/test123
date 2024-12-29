@@ -10,11 +10,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/sriranjani2004/test123' // Specify branch and URL directly
             }
         }
 
-        stage('Install Dependencies') { // Added a proper stage for the misplaced steps
+        stage('Install Dependencies') {
             steps {
                 sh '''
                 export PATH=$PYTHON_PATH:$PATH
@@ -35,9 +35,9 @@ pipeline {
                     exit 1
                 fi
                 sonar-scanner -Dsonar.projectKey=std \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.token=$SONAR_TOKEN
+                             -Dsonar.sources=. \
+                             -Dsonar.host.url=http://localhost:9000 \
+                             -Dsonar.token=$SONAR_TOKEN
                 '''
             }
         }
