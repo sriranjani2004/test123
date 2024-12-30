@@ -1,44 +1,67 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'nodejs-22.12.0'  // Ensure the NodeJS tool ID matches the one configured in Jenkins
+    }
+
     environment {
-        PYTHON_PATH = '/usr/local/bin/python:/Library/Frameworks/Python.framework/Versions/3.12/bin/python3'
-        SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin'
-        PATH = "${PYTHON_PATH}:${SONAR_SCANNER_PATH}:${PATH}"
+        SONAR_SCANNER_PATH = '/Users/ariv/Downloads/sonar-scanner-6.2.1.4610-macosx-x64/bin'  // Set the path for SonarQube scanner
+        PATH = "${SONAR_SCANNER_PATH}:${PATH}"  // Add Sonar scanner to PATH
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/sriranjani2004/test123' // Specify branch and URL directly
+                checkout scm  // Checkout the source code from Git
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                export PATH=$PYTHON_PATH:$PATH
-                pip install -r requirements.txt
-                '''
+                script {
+                    // Ensure npm is available through the NodeJS tool
+                    sh 'npm install'  // Install dependencies
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                script {
+                    // Run linting
+                    sh 'npm run lint'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Run build script
+                    sh 'npm run build'
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             environment {
-                SONAR_TOKEN = credentials('sonar-token') // Accessing the SonarQube token stored in Jenkins credentials
+                SONAR_TOKEN = credentials('sonar-token')  // Fetch SonarQube token from Jenkins credentials
             }
             steps {
-                sh '''
-                export PATH=$SONAR_SCANNER_PATH:$PATH
-                if ! command -v sonar-scanner &> /dev/null; then
-                    echo "SonarQube scanner not found. Please install it."
-                    exit 1
-                fi
-                sonar-scanner -Dsonar.projectKey=std \
-                             -Dsonar.sources=. \
-                             -Dsonar.host.url=http://localhost:9000 \
-                             -Dsonar.token=$SONAR_TOKEN
-                '''
+                script {
+                    // Run SonarQube analysis using the token from credentials
+                    sh '''
+                    if ! command -v sonar-scanner &> /dev/null; then
+                        echo "SonarQube scanner not found. Please install it."
+                        exit 1
+                    fi
+                    sonar-scanner -Dsonar.projectKey=pythonproject \
+                                   -Dsonar.sources=. \
+                                   -Dsonar.host.url=http://localhost:9000 \
+                                   -Dsonar.token=${SONAR_TOKEN}
+                    '''
+                }
             }
         }
     }
